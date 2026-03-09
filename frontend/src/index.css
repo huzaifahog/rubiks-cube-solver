@@ -1,0 +1,719 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=JetBrains+Mono:wght@400;700&display=swap');
+
+:root {
+  --bg-primary: #0a0a0f;
+  --bg-secondary: rgba(20, 20, 30, 0.6);
+  --text-primary: #ffffff;
+  --text-secondary: #94a3b8;
+  --accent-color: #6366f1;
+  --accent-glow: rgba(99, 102, 241, 0.5);
+  
+  --cube-white: #ffffff;
+  --cube-yellow: #ffd500;
+  --cube-green: #009e60;
+  --cube-blue: #0051ba;
+  --cube-red: #c41e3a;
+  --cube-orange: #ff5800;
+  
+  --glass-border: rgba(255, 255, 255, 0.08);
+  --glass-bg: rgba(255, 255, 255, 0.03);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Outfit', sans-serif;
+  background-color: var(--bg-primary);
+  background-image: 
+    radial-gradient(circle at 15% 50%, rgba(99, 102, 241, 0.15), transparent 25%),
+    radial-gradient(circle at 85% 30%, rgba(236, 72, 153, 0.1), transparent 25%);
+  color: var(--text-primary);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+.app-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  min-height: 100vh;
+}
+
+header {
+  text-align: center;
+  margin-bottom: 1rem;
+}
+
+h1 {
+  font-size: 3rem;
+  font-weight: 800;
+  background: linear-gradient(135deg, #fff, #a5b4fc);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 0.5rem;
+  letter-spacing: -1px;
+}
+
+h2 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  font-family: 'Outfit', sans-serif;
+}
+
+/* Glassmorphism Panels */
+.glass-panel {
+  background: var(--glass-bg);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--glass-border);
+  border-radius: 20px;
+  padding: 1.5rem;
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Main Layout Grid */
+.main-content {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  flex: 1;
+}
+
+@media (max-width: 900px) {
+  .main-content {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Button Styling */
+button {
+  font-family: 'Outfit', sans-serif;
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  color: white;
+  padding: 0.75rem 1.5rem;
+  border-radius: 12px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+button:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.1);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+button.primary {
+  background: linear-gradient(135deg, var(--accent-color), #8b5cf6);
+  border: none;
+  box-shadow: 0 4px 15px var(--accent-glow);
+}
+
+button.primary:hover:not(:disabled) {
+  box-shadow: 0 6px 20px var(--accent-glow);
+  transform: translateY(-2px) scale(1.02);
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Camera Scanner */
+.camera-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  align-items: center;
+}
+
+.video-wrapper {
+  position: relative;
+  width: 100%;
+  max-width: 400px;
+  aspect-ratio: 1/1;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 0 0 1px var(--glass-border), 0 10px 30px rgba(0,0,0,0.5);
+  background: #000;
+}
+
+.video-wrapper video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.scanner-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(3, 1fr);
+  padding: 10%;
+  gap: 5px;
+  pointer-events: none;
+}
+
+.scanner-cell {
+  border: 2px solid rgba(255, 255, 255, 0.6);
+  border-radius: 4px;
+  box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
+  transition: all 0.2s;
+}
+
+.scanner-cell.scanned {
+  border-color: #10b981;
+  background: rgba(16, 185, 129, 0.2);
+}
+
+/* Live colour preview grid shown below the camera feed.
+   A 3x3 grid of small coloured squares that updates every 400ms,
+   showing exactly which color has been detected for each sticker cell.
+   The user uses this to confirm the cube is aligned correctly before capturing. */
+.live-preview-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(3, 1fr);
+  gap: 3px;
+  width: 72px;
+  height: 72px;
+  padding: 4px;
+  background: rgba(0, 0, 0, 0.5);
+  border: 1px solid var(--glass-border);
+  border-radius: 8px;
+}
+
+.live-preview-cell {
+  border-radius: 2px;
+  border: 1px solid rgba(0, 0, 0, 0.3);
+}
+
+/* Current Face indicator */
+.face-indicator {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.face-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--glass-border);
+  transition: all 0.3s ease;
+}
+
+.face-dot.active {
+  background: var(--accent-color);
+  box-shadow: 0 0 10px var(--accent-glow);
+  transform: scale(1.2);
+}
+
+.face-dot.completed {
+  background: #10b981;
+}
+
+/* 2D Cube Map */
+.cube-map-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.cube-map {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-template-rows: repeat(3, 1fr);
+  gap: 4px;
+  width: 100%;
+  max-width: 320px;
+  aspect-ratio: 4/3;
+  margin: 0 auto;
+}
+
+.cube-face-2d {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(3, 1fr);
+  gap: 2px;
+  aspect-ratio: 1;
+}
+
+.cube-face-2d.up { grid-column: 2; grid-row: 1; }
+.cube-face-2d.left { grid-column: 1; grid-row: 2; }
+.cube-face-2d.front { grid-column: 2; grid-row: 2; }
+.cube-face-2d.right { grid-column: 3; grid-row: 2; }
+.cube-face-2d.back { grid-column: 4; grid-row: 2; }
+.cube-face-2d.down { grid-column: 2; grid-row: 3; }
+
+.cube-sticker-2d {
+  background-color: var(--glass-bg);
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  border-radius: 2px;
+  width: 100%;
+  height: 100%;
+}
+
+.color-W { background-color: var(--cube-white); }
+.color-Y { background-color: var(--cube-yellow); }
+.color-G { background-color: var(--cube-green); }
+.color-B { background-color: var(--cube-blue); }
+.color-R { background-color: var(--cube-red); }
+.color-O { background-color: var(--cube-orange); }
+
+.color-palette {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.color-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  cursor: pointer;
+  padding: 0;
+}
+
+.color-btn.selected {
+  border-color: white;
+  transform: scale(1.1);
+  box-shadow: 0 0 10px rgba(255,255,255,0.5);
+}
+
+/* Solution Display */
+.solution-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  height: 100%;
+}
+
+.solution-steps {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 1.25rem;
+  font-weight: 700;
+  padding: 1rem;
+  background: rgba(0,0,0,0.3);
+  border-radius: 12px;
+  min-height: 100px;
+  align-items: flex-start;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.step-badge {
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 48px;
+  transition: all 0.2s ease;
+}
+
+.step-badge.active {
+  background: var(--accent-color);
+  border-color: var(--accent-color);
+  box-shadow: 0 0 15px var(--accent-glow);
+  transform: scale(1.1);
+}
+
+.step-badge.done {
+  opacity: 0.5;
+  background: rgba(16, 185, 129, 0.2);
+  border-color: rgba(16, 185, 129, 0.4);
+}
+
+/* Error Message Component */
+.error-message {
+  background: rgba(220, 38, 38, 0.1);
+  border: 1px solid rgba(220, 38, 38, 0.3);
+  color: #fca5a5;
+  padding: 1rem;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 0.95rem;
+  animation: slideIn 0.3s ease;
+}
+
+/* Diagnostic color count grid shown before solving */
+.diagnostic-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.5rem;
+}
+
+@media (max-width: 600px) {
+  .diagnostic-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+.diagnostic-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  padding: 0.6rem 0.75rem;
+  border-radius: 8px;
+  border: 1px solid var(--glass-border);
+  background: rgba(0, 0, 0, 0.25);
+}
+
+.diagnostic-cell.ok {
+  border-color: rgba(16, 185, 129, 0.4);
+  background: rgba(16, 185, 129, 0.07);
+}
+
+.diagnostic-cell.bad {
+  border-color: rgba(220, 38, 38, 0.5);
+  background: rgba(220, 38, 38, 0.1);
+}
+
+.diag-label {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+}
+
+.diag-count {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.diagnostic-cell.bad .diag-count {
+  color: #fca5a5;
+}
+
+/* Non-critical warning box (orange tint, not red) */
+.warning-box {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  background: rgba(251, 146, 60, 0.1);
+  border: 1px solid rgba(251, 146, 60, 0.35);
+  color: #fdba74;
+  padding: 0.75rem 1rem;
+  border-radius: 10px;
+  font-size: 0.88rem;
+  line-height: 1.45;
+}
+
+@keyframes slideIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* 3D View */
+.cube-3d-wrapper {
+  width: 100%;
+  aspect-ratio: 1;
+  max-height: 400px;
+  perspective: 1000px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 0 auto;
+}
+
+.cube-3d {
+  width: 200px;
+  height: 200px;
+  position: relative;
+  transform-style: preserve-3d;
+  transform: rotateX(-20deg) rotateY(-45deg);
+  transition: transform 1s ease-in-out;
+}
+
+.cube-face {
+  position: absolute;
+  width: 200px;
+  height: 200px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(3, 1fr);
+  gap: 2px;
+  background: #111;
+  border: 2px solid #000;
+  padding: 2px;
+}
+
+.cube-face .sticker {
+  border-radius: 4px;
+}
+
+.cube-face.f-up { transform: rotateX(90deg) translateZ(100px); }
+.cube-face.f-down { transform: rotateX(-90deg) translateZ(100px); }
+.cube-face.f-front { transform: rotateY(0deg) translateZ(100px); }
+.cube-face.f-back { transform: rotateY(180deg) translateZ(100px); }
+.cube-face.f-right { transform: rotateY(90deg) translateZ(100px); }
+.cube-face.f-left { transform: rotateY(-90deg) translateZ(100px); }
+
+/* Animation Utils */
+/* spin-slow is intentionally removed — the cube no longer auto-spins idle */
+
+/* ------------------------------------------------------------------
+   Solution layout: cube viewer on the left, instruction panel on the right.
+   On narrow screens, stack vertically.
+------------------------------------------------------------------ */
+.solution-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  width: 100%;
+}
+
+@media (max-width: 900px) {
+  .solution-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ------------------------------------------------------------------
+   Cube viewer panel
+------------------------------------------------------------------ */
+.cube-viewer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+/* Step counter: "Step 3 / 12" */
+.step-counter {
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+  letter-spacing: 0.04em;
+}
+
+/* Large move token shown above the 3D cube during playback */
+.current-move-label {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  min-height: 3rem;
+}
+
+.move-token {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: var(--accent-color);
+  text-shadow: 0 0 20px var(--accent-glow);
+  line-height: 1;
+}
+
+.move-hint {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+/* ------------------------------------------------------------------
+   Solution panel: instruction box + controls + step badges
+------------------------------------------------------------------ */
+.solution-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+/* The plain-English instruction for the current move */
+.instruction-box {
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid var(--glass-border);
+  border-radius: 12px;
+  padding: 1rem 1.25rem;
+  min-height: 90px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.instruction-step-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--accent-color);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.instruction-text {
+  font-size: 0.95rem;
+  color: var(--text-primary);
+  line-height: 1.5;
+}
+
+/* Playback controls row */
+.playback-controls {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.playback-controls .play-btn {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  padding: 0;
+  font-size: 1.2rem;
+}
+
+/* ------------------------------------------------------------------
+   3D cube and face animations
+------------------------------------------------------------------ */
+.cube-3d-wrapper {
+  width: 100%;
+  aspect-ratio: 1;
+  max-height: 320px;
+  perspective: 900px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 0 auto;
+}
+
+.cube-3d {
+  width: 180px;
+  height: 180px;
+  position: relative;
+  transform-style: preserve-3d;
+  /* transition is applied inline so it can be varied per step */
+}
+
+.cube-face {
+  position: absolute;
+  width: 180px;
+  height: 180px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(3, 1fr);
+  gap: 3px;
+  background: #111;
+  border: 3px solid #000;
+  padding: 3px;
+  transform-style: preserve-3d;
+}
+
+.cube-face .sticker {
+  border-radius: 4px;
+  transition: background 0.15s ease;
+}
+
+.cube-face.f-up    { transform: rotateX(90deg)  translateZ(90px); }
+.cube-face.f-down  { transform: rotateX(-90deg) translateZ(90px); }
+.cube-face.f-front { transform: rotateY(0deg)   translateZ(90px); }
+.cube-face.f-back  { transform: rotateY(180deg) translateZ(90px); }
+.cube-face.f-right { transform: rotateY(90deg)  translateZ(90px); }
+.cube-face.f-left  { transform: rotateY(-90deg) translateZ(90px); }
+
+/*
+  Face-turn CSS animations.
+
+  Each animation briefly rotates a face around its own axis to show the turn
+  visually. CSS 3D does not actually "detach" a face the way a real cube works,
+  so this is an approximation: the face jiggles and the sticker colors flip at
+  the end of the animation when the JS state update commits the new colors.
+
+  The base transform for each face is the translate/rotate that positions it.
+  The animation adds an additional rotation on top of that. We use
+  transform-origin: center center and add the extra rotation via rotateX/Y/Z
+  matching the face's own axis.
+
+  --anim-dur is set as a CSS custom property on the face element so it
+  inherits the ANIM_DURATION_MS value from JS.
+*/
+
+/* U face rotates around X axis from above */
+.face-turn-u {
+  animation: turn-u var(--anim-dur, 400ms) ease-in-out forwards;
+}
+@keyframes turn-u {
+  0%   { transform: rotateX(90deg)  translateZ(90px) rotateX(0deg);   }
+  50%  { transform: rotateX(90deg)  translateZ(90px) rotateX(-90deg); }
+  100% { transform: rotateX(90deg)  translateZ(90px) rotateX(0deg);   }
+}
+
+/* D face rotates around X axis from below */
+.face-turn-d {
+  animation: turn-d var(--anim-dur, 400ms) ease-in-out forwards;
+}
+@keyframes turn-d {
+  0%   { transform: rotateX(-90deg) translateZ(90px) rotateX(0deg);   }
+  50%  { transform: rotateX(-90deg) translateZ(90px) rotateX(90deg);  }
+  100% { transform: rotateX(-90deg) translateZ(90px) rotateX(0deg);   }
+}
+
+/* R face rotates around Y axis on the right */
+.face-turn-r {
+  animation: turn-r var(--anim-dur, 400ms) ease-in-out forwards;
+}
+@keyframes turn-r {
+  0%   { transform: rotateY(90deg) translateZ(90px) rotateY(0deg);   }
+  50%  { transform: rotateY(90deg) translateZ(90px) rotateY(-90deg); }
+  100% { transform: rotateY(90deg) translateZ(90px) rotateY(0deg);   }
+}
+
+/* L face rotates around Y axis on the left */
+.face-turn-l {
+  animation: turn-l var(--anim-dur, 400ms) ease-in-out forwards;
+}
+@keyframes turn-l {
+  0%   { transform: rotateY(-90deg) translateZ(90px) rotateY(0deg);  }
+  50%  { transform: rotateY(-90deg) translateZ(90px) rotateY(90deg); }
+  100% { transform: rotateY(-90deg) translateZ(90px) rotateY(0deg);  }
+}
+
+/* F face rotates around Z axis on the front */
+.face-turn-f {
+  animation: turn-f var(--anim-dur, 400ms) ease-in-out forwards;
+}
+@keyframes turn-f {
+  0%   { transform: rotateY(0deg) translateZ(90px) rotateZ(0deg);   }
+  50%  { transform: rotateY(0deg) translateZ(90px) rotateZ(-90deg); }
+  100% { transform: rotateY(0deg) translateZ(90px) rotateZ(0deg);   }
+}
+
+/* B face rotates around Z axis on the back */
+.face-turn-b {
+  animation: turn-b var(--anim-dur, 400ms) ease-in-out forwards;
+}
+@keyframes turn-b {
+  0%   { transform: rotateY(180deg) translateZ(90px) rotateZ(0deg);  }
+  50%  { transform: rotateY(180deg) translateZ(90px) rotateZ(90deg); }
+  100% { transform: rotateY(180deg) translateZ(90px) rotateZ(0deg);  }
+}
