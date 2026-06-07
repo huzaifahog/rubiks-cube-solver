@@ -26,3 +26,12 @@ Thumbs.db
 .idea/
 *.iml
 .vscode/settings.json
+
+# ---- Vercel ----
+.vercel/
+
+# ---- Backend Node.js ----
+backend-node/node_modules/
+
+# ---- Java Backend (old) ----
+backend/target/
