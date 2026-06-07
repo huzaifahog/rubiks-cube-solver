@@ -4,6 +4,8 @@
   "description": "Rubik's Cube Solver - React frontend + Node.js backend",
   "type": "module",
   "scripts": {
-    "test": "cd backend-node && npm install && cd .. && node test-script.js"
+    "build": "npm --prefix frontend install && npm --prefix frontend run build && npm --prefix backend-node install",
+    "test": "cd backend-node && npm install && cd .. && node test-script.js",
+    "start": "node backend-node/server.js"
   }
 }
