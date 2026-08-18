@@ -1,11 +1,14 @@
 {
   "name": "rubiks-cube-solver",
   "version": "1.0.0",
-  "description": "Rubik's Cube Solver - React frontend + Node.js backend",
+  "private": true,
+  "description": "Full-stack Rubik's Cube solver with webcam scanning, face mapping, and Kociemba solving.",
   "type": "module",
   "scripts": {
-    "build": "npm --prefix frontend install && npm --prefix frontend run build && npm --prefix backend-node install",
-    "test": "cd backend-node && npm install && cd .. && node test-script.js",
-    "start": "node backend-node/server.js"
+    "dev:frontend": "npm --prefix frontend run dev",
+    "dev:backend": "npm --prefix backend-node run dev",
+    "build": "npm --prefix frontend run build",
+    "start": "npm --prefix backend-node run start",
+    "test": "node test-script.js"
   }
 }

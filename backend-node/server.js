@@ -2,7 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import { solveCube, validateCube } from './utils/cubeSolver.js';
-import { combineFaces, separateFaces, validateFace } from './utils/cubeInput.js';
+import { combineFaces, validateFace } from './utils/cubeInput.js';
 
 dotenv.config();
 

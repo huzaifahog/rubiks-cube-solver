@@ -1,97 +1,107 @@
 # Rubik's Cube Solver
 
-A full-stack web application that solves Rubik's Cubes using the Kociemba Two-Phase Algorithm.
+A full-stack Rubik's Cube solver that captures cube faces from a camera, converts them to Kociemba format, and solves the cube with the real Kociemba algorithm.
 
 ## Overview
 
-This project consists of:
-- **Frontend**: React-based UI for scanning cube faces and displaying solutions
-- **Backend**: Node.js/Express server that solves cubes using advanced algorithms
-- **Testing**: Comprehensive test suite for validating solutions
+This project is split into two main pieces:
 
-## Quick Start
+- Frontend: React + Vite app for webcam face scanning and the interactive cube UI
+- Backend: Express server that validates cube strings and solves them using Kociemba
 
-### Prerequisites
-- Node.js 16+
-- npm or yarn
+## Stack
 
-### Installation
+- Frontend: React 19, Vite, Axios, lucide-react
+- Backend: Node.js, Express, dotenv, cors, kociemba
+- Solver: real Kociemba implementation from the npm package
 
-1. **Clone the repository**
-   ```bash
-   git clone <repository-url>
-   cd rubiks-cube-solver
-   ```
+## Project structure
 
-2. **Install Backend Dependencies**
-   ```bash
-   cd backend-node
-   npm install
-   cd ..
-   ```
-
-3. **Install Frontend Dependencies**
-   ```bash
-   cd frontend
-   npm install
-   cd ..
-   ```
-
-### Running Locally
-
-**Terminal 1 - Backend Server:**
-```bash
-cd backend-node
-npm start
+```text
+rubiks-cube-solver/
+├── backend-node/
+│   ├── server.js
+│   ├── package.json
+│   ├── README.md
+│   └── utils/
+│       ├── cubeInput.js
+│       └── cubeSolver.js
+├── frontend/
+│   ├── package.json
+│   ├── README.md
+│   ├── vite.config.js
+│   └── src/
+├── .gitignore
+├── README.md
+├── test-script.js
+├── vercel.json
+└── package.json
 ```
 
-**Terminal 2 - Frontend Development:**
+## Local setup
+
+### 1) Install dependencies
+
 ```bash
-cd frontend
-npm run dev
+npm install
+npm --prefix frontend install
+npm --prefix backend-node install
 ```
 
-**Terminal 3 - Run Tests:**
+### 2) Run the backend
+
+```bash
+npm run dev:backend
+```
+
+Backend listens on:
+
+- http://localhost:5000
+
+### 3) Run the frontend
+
+```bash
+npm run dev:frontend
+```
+
+Frontend runs on:
+
+- http://localhost:5173
+
+### 4) Run the project test script
+
 ```bash
 npm run test
 ```
 
-The frontend will be available at `http://localhost:5173` and the backend at `http://localhost:5000`.
+## API endpoints
 
-## Project Structure
+### GET /health
 
-```
-rubiks-cube-solver/
-├── backend-node/          # Node.js Express backend
-│   ├── server.js          # Main server
-│   ├── package.json       # Backend dependencies
-│   └── utils/
-│       └── cubeSolver.js  # Solving logic
-├── frontend/              # React frontend with Vite
-│   ├── src/
-│   ├── package.json       # Frontend dependencies
-│   └── vite.config.js
-├── test-script.js         # Standalone test suite
-├── vercel.json            # Vercel deployment config
-└── .gitignore
+Returns server status.
+
+Example response:
+
+```json
+{
+  "status": "Server is running"
+}
 ```
 
-## API Documentation
+### POST /api/solve
 
-### Solve Endpoint
+Solves a cube from a 54-character Kociemba-style string.
 
-**POST** `/api/solve`
+Request body:
 
-Solves a Rubik's Cube given its state as a 54-character string.
-
-**Request Body:**
 ```json
 {
   "cubeString": "UUUUUUUUURRRRRRRRRFFFFFFFFFDDDDDDDDDLLLLLLLLLBBBBBBBBB"
 }
 ```
 
-**Success Response (200):**
+Response:
+
 ```json
 {
   "moves": ["R", "U", "R'", "U'"],
@@ -100,140 +110,46 @@ Solves a Rubik's Cube given its state as a 54-character string.
 }
 ```
 
-**Error Response (400):**
+### POST /api/solve-faces
+
+Accepts six face strings instead of a combined cube string.
+
+Request body:
+
 ```json
 {
-  "moves": null,
-  "moveCount": 0,
-  "error": "Cube string contains invalid characters..."
+  "U": "UUUUUUUUU",
+  "R": "RRRRRRRRR",
+  "F": "FFFFFFFFF",
+  "D": "DDDDDDDDD",
+  "L": "LLLLLLLLL",
+  "B": "BBBBBBBBB"
 }
 ```
 
-### Health Check
+## Cube format
 
-**GET** `/health`
+The backend expects a 54-character cube string using face letters:
 
-Returns server status.
+- U = Up
+- R = Right
+- F = Front
+- D = Down
+- L = Left
+- B = Back
 
-## Testing
+Each face contributes 9 stickers, and each letter appears 9 times in the full 54-character cube string.
 
-Run the comprehensive test suite:
+## Notes
 
-```bash
-npm run test
-```
-
-This will:
-1. Generate 100 random valid cube states
-2. Send each to the solver API
-3. Verify that solutions actually solve the cubes
-4. Report pass/fail statistics
-
-Expected output:
-```
-============================================================
-   RUBIK'S CUBE SOLVER - COMPREHENSIVE TEST SUITE
-   Testing 100 random cube states
-============================================================
-
-✓ Test 1: Passed (21 moves)
-✓ Test 2: Passed (19 moves)
-❌ Test 3: API returned error - Invalid cube state
-...
-
-============================================================
-   TEST SUMMARY
-============================================================
-Total Tests:    100
-Passed:         98 ✓
-Failed:         2 ❌
-Success Rate:   98.00%
-============================================================
-```
-
-## Features
-
-- **Random Cube Generation**: Generate valid, solvable cube states
-- **Input Validation**: Validates cube strings for correct format and legality
-- **Solution Verification**: Tests confirm solutions actually solve cubes
-- **Error Handling**: Detailed error messages for invalid inputs
-- **CORS Support**: Frontend and backend can run on different servers
-- **Production Ready**: Optimized for deployment on Vercel
-
-## Cube State Format
-
-Cube states are represented as 54-character strings:
-- **Characters**: U (Up), D (Down), F (Front), B (Back), L (Left), R (Right)
-- **Order**: Each face's 9 stickers in order (3×3 grid)
-- **Constraint**: Each color appears exactly 9 times
-- **Example**: `UUUUUUUUURRRRRRRRRFFFFFFFFFDDDDDDDDDLLLLLLLLLBBBBBBBBB` (solved cube)
+- The real solver is implemented in [backend-node/utils/cubeSolver.js](backend-node/utils/cubeSolver.js)
+- The frontend converts the scanned sticker colors into a valid cube string in [frontend/src/utils/cubeStringMapper.js](frontend/src/utils/cubeStringMapper.js)
+- The webcam/detection logic lives in [frontend/src/utils/colorDetection.js](frontend/src/utils/colorDetection.js)
 
 ## Deployment
 
-### Deploy to Vercel
-
-1. **Commit to GitHub**
-   ```bash
-   git add .
-   git commit -m "Ready for production"
-   git push origin main
-   ```
-
-2. **Connect to Vercel**
-   - Visit https://vercel.com
-   - Create new project from GitHub
-   - Select this repository
-   - Vercel automatically detects configuration
-   - Click "Deploy"
-
-3. **Access Your App**
-   - Frontend: `https://your-project.vercel.app`
-   - Backend API: `https://your-project.vercel.app/api/solve`
-
-## Algorithm
-
-The backend uses an optimized implementation of Kociemba's Two-Phase Algorithm:
-- **Phase 1**: Orients edges and positions corners into specific groups
-- **Phase 2**: Solves the remaining cube using limited move set
-- **Performance**: Typically solves any cube in ≤21 moves
-- **Memory**: Efficient with pruning tables for fast computation
-
-## Environment Variables
-
-Backend (`.env` file in `backend-node/`):
-```
-PORT=5000
-NODE_ENV=development
-```
-
-For Vercel production, set `NODE_ENV=production` in dashboard.
-
-## Troubleshooting
-
-| Issue | Solution |
-|-------|----------|
-| Cannot connect to server | Run `npm install` and check port 5000 is free |
-| Tests fail to run | Ensure backend is running with `npm start` |
-| CORS errors | Check that frontend URL is allowed in server CORS settings |
-| Deployment fails | Check Vercel logs in dashboard, ensure all files committed |
+This repo is meant for local development and GitHub deployment. The backend is configured to run on port 5000 and the frontend uses Vite on port 5173.
 
 ## License
 
 MIT
-
-## Contributing
-
-Contributions welcome! Please:
-1. Test your changes with `npm run test`
-2. Ensure all tests pass
-3. Commit meaningful messages
-4. Push to feature branch
-5. Submit pull request
-
-## Support
-
-For issues or questions:
-- Check the test output for detailed error messages
-- Review API response errors
-- Check Vercel deployment logs
-- Verify cube string format (54 chars, valid colors)
